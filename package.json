@@ -2,6 +2,7 @@
   "name": "apivisitas",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +11,7 @@
     "start": "node dist/server.js",
     "prisma:migrate": "npx prisma migrate dev --name init_union_fiel",
     "prisma:generate": "npx prisma generate",
-    "seed": "ts-node src/database/seed.ts"
+    "seed": "node --loader ts-node/esm src/database/seed.ts"
   },
   "keywords": [],
   "author": "",
