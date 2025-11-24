@@ -28,6 +28,7 @@ Incluye rutas públicas y rutas protegidas que requieren un token válido para a
 Para obtener un token JWT, debes hacer una petición POST a tu ruta de login:
 
 ### **POST /login**
+## http://localhost:3000/api/auth/login
 **Body:**
 ```json
 {
