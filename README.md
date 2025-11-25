@@ -129,3 +129,6 @@ Authorization: Bearer TU_TOKEN_AQUI
     "referenciaId": 1
   }
 }
+
+### en la terminal 
+## esto es la parte ce ver las tablas mas claras con este comando npx prisma studio
