@@ -10,14 +10,14 @@ async function main() {
     console.log("🌱 Iniciando Seed...");
     const asociacion = await prisma.asociacion.create({
         data: {
-            nombre: "Asociación Central", // 🔁 CAMBIA el nombre aquí
+            nombre: "Asociación Central",
         },
     });
 
 
     const distrito = await prisma.distrito.create({
         data: {
-            nombre: "Distrito Norte", // 🔁 CAMBIA el nombre aquí
+            nombre: "Distrito Norte",
             asociacionId: asociacion.id,
         },
     });
@@ -25,10 +25,10 @@ async function main() {
 
     const iglesia = await prisma.iglesia.create({
         data: {
-            nombre: "Iglesia Central", // 🔁 CAMBIA
-            codigo: "IGL-001",         // 🔁 CAMBIA
-            direccion: "Centro, Ciudad", // 🔁 CAMBIA
-            telefono: "7000-0000",       // opcional
+            nombre: "Iglesia Central",
+            codigo: "IGL-001",
+            direccion: "Centro, Ciudad",
+            telefono: "7000-0000",
             distritoId: distrito.id,
         },
     });

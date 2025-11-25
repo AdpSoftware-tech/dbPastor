@@ -1,18 +1,18 @@
 import { PrismaClient, Rol } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import * as jwt from "jsonwebtoken";
+import * as jwt from 'jsonwebtoken';
+
 const prisma = new PrismaClient();
 const JWT_KEY_SIGN = process.env.JWT_SECRET || 'mi_super_clave';
 
 export const hashPassword = async (password: string): Promise<string> => {
-    const saltRounds = 10;
-    return bcrypt.hash(password, saltRounds);
+    return bcrypt.hash(password, 10);
 };
 
 export const comparePassword = async (password: string, hash: string): Promise<boolean> => {
-    const isMatch = await bcrypt.compare(password, hash);
-    return isMatch;
+    return bcrypt.compare(password, hash);
 };
+
 interface LoginResult {
     token: string;
     rol: Rol;
@@ -20,7 +20,6 @@ interface LoginResult {
 }
 
 export const login = async (email: string, password: string): Promise<LoginResult> => {
-    const jwt = await import('jsonwebtoken');
     const usuario = await prisma.usuario.findUnique({
         where: { email },
         select: {
@@ -32,15 +31,10 @@ export const login = async (email: string, password: string): Promise<LoginResul
         },
     });
 
-    if (!usuario) {
-        throw new Error("Credenciales inválidas (Usuario no encontrado)");
-    }
+    if (!usuario) throw new Error("Credenciales inválidas (Usuario no encontrado)");
 
     const passwordMatch = await comparePassword(password, usuario.password);
-
-    if (!passwordMatch) {
-        throw new Error("Credenciales inválidas (Contraseña incorrecta)");
-    }
+    if (!passwordMatch) throw new Error("Credenciales inválidas (Contraseña incorrecta)");
 
     let referenciaId: string | null = null;
 
@@ -65,14 +59,10 @@ export const login = async (email: string, password: string): Promise<LoginResul
     const payload = {
         id: usuario.id,
         rol: usuario.rol,
-        referenciaId: referenciaId,
+        referenciaId,
     };
 
     const token = jwt.sign(payload, JWT_KEY_SIGN, { expiresIn: '8h' });
 
-    return {
-        token,
-        rol: usuario.rol,
-        referenciaId: referenciaId,
-    };
+    return { token, rol: usuario.rol, referenciaId };
 };
