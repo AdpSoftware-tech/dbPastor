@@ -1,196 +1,166 @@
-// Este es tu esquema de Prisma (schema.prisma)
-// La clave de esta corrección es:
-// 1. Eliminar los campos pastorId y miembroId del modelo Usuario.
-// 2. Simplificar las relaciones pastorInfo y miembroInfo en Usuario (sin @relation args).
-// De esta forma, Pastor y Miembro son los únicos dueños de la Clave Foránea.
-
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-
-// ==========================================================
-// 1. ENUMS
-// ==========================================================
 
 enum Rol {
-  SuperADMIN
-  SECRETARIAAsociacion
-  PASTOR
-  SECRETARIAIglesia
-  MIEMBRO
+  SuperADMIN
+  SECRETARIAAsociacion
+  PASTOR
+  SECRETARIAIglesia
+  MIEMBRO
 }
 
-
-// ==========================================================
-// 2. MODELOS PRINCIPALES (Usuario, Perfiles, Estructura)
-// ==========================================================
-
 model Usuario {
-  id              String    @id @default(uuid())
-  nombre          String
-  apellidos       String
-  email           String    @unique
-  telefono        String    @unique
-  password        String
-  rol             Rol       @default(MIEMBRO)
-  codigoUnico     String    @unique
-  creadoEn        DateTime  @default(now())
-  actualizadoEn   DateTime  @updatedAt
-  
-  // 🔑 CORRECCIÓN FINAL para P1012:
-  // Eliminamos los campos de ID redundantes (pastorId, miembroId) del Usuario.
-  // Y quitamos los argumentos (fields y references) de @relation().
-  pastorInfo      Pastor? // Relación 1:1 con Pastor
-  miembroInfo     Miembro? // Relación 1:1 con Miembro
-  
-  iglesiaId       String?
-  iglesiaSecretaria Iglesia?  @relation("SecretariasDeIglesia", fields: [iglesiaId], references: [id])
-  
+  id            String   @id @default(uuid())
+  nombre        String
+  apellidos     String
+  email         String   @unique
+  telefono      String   @unique
+  password      String
+  rol           Rol      @default(MIEMBRO)
+  codigoUnico   String   @unique
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  // Relaciones 1-1
+  pastorInfo    Pastor?   @relation("UsuarioPastor")
+  miembroInfo   Miembro?  @relation("UsuarioMiembro")
+
+  // Secretaria de Iglesia
+  iglesiaId         String?
+  iglesiaSecretaria Iglesia? @relation("SecretariasDeIglesia", fields: [iglesiaId], references: [id])
+
   tokens Token[]
-  
-  // Para la relación Evento (un usuario crea el evento)
+
+  // Eventos creados
   eventosCreados Evento[] @relation("UsuarioCreador")
 }
 
-// ----------------------------------------------------------
-// PERFIL PASTOR (El lado dueño de la Clave Foránea)
-// ----------------------------------------------------------
-
 model Pastor {
-  id                String              @id @default(uuid())
-  usuarioId         String              @unique // Clave foránea al Usuario (Unique = 1:1)
-  licenciaPastoral  String?
-  fechaOrdenacion   DateTime?
-  tokenAutoregistro String?             @unique
-  tokenUsado        Boolean             @default(false)
-  // Define la relación completa, apuntando al Usuario
-  usuario           Usuario             @relation(fields: [usuarioId], references: [id])
-  asociacionId      String?
-  asociacion        Asociacion?         @relation(fields: [asociacionId], references: [id])
-  distritoId        String?
-  distrito          Distrito?           @relation(fields: [distritoId], references: [id])
-  iglesias          Iglesia[]
-  mensajes          MensajeMotivacion[]
-  bautismos         Bautismo[]
+  id                String    @id @default(uuid())
+  usuarioId         String    @unique
+  licenciaPastoral  String?
+  fechaOrdenacion   DateTime?
+  tokenAutoregistro String?   @unique
+  tokenUsado        Boolean   @default(false)
+
+  usuario Usuario @relation("UsuarioPastor", fields: [usuarioId], references: [id])
+
+  asociacionId String?
+  asociacion   Asociacion? @relation(fields: [asociacionId], references: [id])
+
+  distritoId String?
+  distrito   Distrito? @relation(fields: [distritoId], references: [id])
+
+  iglesias  Iglesia[]
+  mensajes  MensajeMotivacion[]
+  bautismos Bautismo[]
 }
-  
-// ----------------------------------------------------------
-// PERFIL MIEMBRO (El lado dueño de la Clave Foránea)
-// ----------------------------------------------------------
 
 model Miembro {
-  id                String            @id @default(uuid())
-  usuarioId         String            @unique // Clave foránea al Usuario (Unique = 1:1)
-  bautizado         Boolean           @default(false)
-  fechaBautismo     DateTime?
-  fechaNacimiento   DateTime
-  codigoMiembro     String            @unique
-  // Define la relación completa, apuntando al Usuario
-  usuario           Usuario           @relation(fields: [usuarioId], references: [id])
-  iglesiaId         String
-  iglesia           Iglesia           @relation(fields: [iglesiaId], references: [id])
-  oraciones         OracionMiembro[]
-  bautismos         Bautismo[]
+  id              String    @id @default(uuid())
+  usuarioId       String    @unique
+  bautizado       Boolean   @default(false)
+  fechaBautismo   DateTime?
+  fechaNacimiento DateTime
+  codigoMiembro   String    @unique
+
+  usuario Usuario @relation("UsuarioMiembro", fields: [usuarioId], references: [id])
+
+  iglesiaId String
+  iglesia   Iglesia @relation(fields: [iglesiaId], references: [id])
+
+  oraciones OracionMiembro[]
+  bautismos Bautismo[]
 }
 
-
-// ==========================================================
-// 3. MODELOS ESTRUCTURALES (Asociacion, Distrito, Iglesia)
-// ==========================================================
-
 model Asociacion {
-  id              String      @id @default(uuid())
-  nombre          String
-  distritos       Distrito[]
-  pastores        Pastor[]
+  id        String     @id @default(uuid())
+  nombre    String
+  distritos Distrito[]
+  pastores  Pastor[]
 }
 
 model Distrito {
-  id              String      @id @default(uuid())
-  nombre          String
-  asociacionId    String
-  asociacion      Asociacion  @relation(fields: [asociacionId], references: [id])
-  iglesias        Iglesia[]
-  pastores        Pastor[]
+  id           String     @id @default(uuid())
+  nombre       String
+  asociacionId String
+  asociacion   Asociacion @relation(fields: [asociacionId], references: [id])
+  iglesias     Iglesia[]
+  pastores     Pastor[]
 }
 
-
 model Iglesia {
-  id              String      @id @default(uuid())
-  nombre          String
-  codigo          String      @unique
-  direccion       String
-  telefono        String?
-  distritoId      String
-  distrito        Distrito    @relation(fields: [distritoId], references: [id])
-  pastorId        String?
-  pastor          Pastor?     @relation(fields: [pastorId], references: [id])
-  miembros        Miembro[]
-  secretarias     Usuario[]   @relation("SecretariasDeIglesia")
-  
+  id          String    @id @default(uuid())
+  nombre      String
+  codigo      String    @unique
+  direccion   String
+  telefono    String?
+  distritoId  String
+  distrito    Distrito  @relation(fields: [distritoId], references: [id])
+
+  pastorId String?
+  pastor   Pastor? @relation(fields: [pastorId], references: [id])
+
+  miembros    Miembro[]
+  secretarias Usuario[] @relation("SecretariasDeIglesia")
+
   eventos Evento[]
 }
 
-
-// ==========================================================
-// 4. MODELOS TRANSACCIONALES/DATOS
-// ==========================================================
-
 model MensajeMotivacion {
-  id              String    @id @default(uuid())
-  mensaje         String
-  creadoEn        DateTime  @default(now())
-  pastorId        String
-  pastor          Pastor    @relation(fields: [pastorId], references: [id])
+  id       String   @id @default(uuid())
+  mensaje  String
+  creadoEn DateTime @default(now())
+  pastorId String
+  pastor   Pastor   @relation(fields: [pastorId], references: [id])
 }
 
 model OracionMiembro {
-  id              String    @id @default(uuid())
-  peticion        String
-  creadoEn        DateTime  @default(now())
-  miembroId       String
-  miembro         Miembro   @relation(fields: [miembroId], references: [id])
+  id        String   @id @default(uuid())
+  peticion  String
+  creadoEn  DateTime @default(now())
+  miembroId String
+  miembro   Miembro  @relation(fields: [miembroId], references: [id])
 }
 
 model Bautismo {
-  id              String    @id @default(uuid())
-  fecha           DateTime  @default(now())
-  miembroId       String
-  miembro         Miembro   @relation(fields: [miembroId], references: [id])
-  pastorId        String
-  pastor          Pastor    @relation(fields: [pastorId], references: [id])
+  id        String   @id @default(uuid())
+  fecha     DateTime @default(now())
+  miembroId String
+  miembro   Miembro  @relation(fields: [miembroId], references: [id])
+  pastorId  String
+  pastor    Pastor   @relation(fields: [pastorId], references: [id])
 }
 
 model Evento {
-    id            String    @id @default(uuid())
-    nombre        String
-    descripcion   String?
-    fechaInicio   DateTime
-    fechaFin      DateTime
-    lugar         String
-    creadoEn      DateTime  @default(now())
-    actualizadoEn DateTime  @updatedAt
-    
-    // Relación N:1 con Iglesia (a qué iglesia pertenece el evento)
-    iglesiaId     String
-    iglesia       Iglesia   @relation(fields: [iglesiaId], references: [id])
-    
-    // Relación N:1 con Usuario (quién creó el evento, puede ser Pastor o Secretaria)
-    creadoPorId   String
-    creadoPor     Usuario   @relation("UsuarioCreador", fields: [creadoPorId], references: [id])
+  id            String   @id @default(uuid())
+  nombre        String
+  descripcion   String?
+  fechaInicio   DateTime
+  fechaFin      DateTime
+  lugar         String
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  iglesiaId String
+  iglesia   Iglesia @relation(fields: [iglesiaId], references: [id])
+
+  creadoPorId String
+  creadoPor   Usuario @relation("UsuarioCreador", fields: [creadoPorId], references: [id])
 }
 
 model Token {
-    id            String    @id @default(uuid())
-    tokenHash     String    @unique
-    usuarioId     String
-    usuario       Usuario   @relation(fields: [usuarioId], references: [id])
-    expiraEn      DateTime
-    invalidado    Boolean   @default(false)
-    creadoEn      DateTime  @default(now())
+  id         String   @id @default(uuid())
+  tokenHash  String   @unique
+  usuarioId  String
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  expiraEn   DateTime
+  invalidado Boolean  @default(false)
+  creadoEn   DateTime @default(now())
 }

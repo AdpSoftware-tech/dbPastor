@@ -1,13 +1,14 @@
-// src/types/express/index.d.ts
-
-import { Role } from "@prisma/client";
+import "express";
+import { Rol } from "@prisma/client";
 
 declare global {
     namespace Express {
         interface UserPayload {
-            id: number;
-            rol: Role;
-            referenciaId: number;
+            id: string;
+            rol: Rol;
+            referenciaId: string;
+            iat?: number;
+            exp?: number;
         }
 
         interface Request {

@@ -4,9 +4,7 @@ import { authorizeRole } from "../middlewares/authorizeRole.js";
 
 const router = Router();
 
-/**
- * RUTA SOLO PARA PASTORES
- */
+
 router.get(
     "/solo-pastor",
     authenticateToken,
@@ -44,9 +42,6 @@ router.get(
 );
 
 
-/**
- * RUTA PARA TODOS LOS USUARIOS AUTENTICADOS
- */
 router.get(
     "/todos-autenticados",
     authenticateToken,

@@ -83,6 +83,19 @@ Your database is now in sync with your schema.
 ✔ Generated Prisma Client (v6.19.0) to ./node_modules/@prisma/client in 56ms
 
 ---
+## npm run seed agrega dato a la base de datos
+## > node --loader ts-node/esm src/database/seed.ts
+
+(node:67561) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:67561) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+🌱 Iniciando Seed...
+✔ SuperADMIN creado: admin@correo.com
+✔ Pastor creado: pastor@correo.com
+✔ Miembro creado: miembro@correo.com
+🌱 Seed completado con éxito.
 
 ## 🔑 Generación de Token (Login)
 Para obtener un token JWT, debes hacer una petición POST a tu ruta de login:

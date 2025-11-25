@@ -7,6 +7,7 @@ import protectedRoutes from './routes/protectedRoute.js';
 
 import authRoutes from './routes/auth.js';
 import registrRoutes from './routes/registro.js'
+import pastorRoutes from "./routes/pastorRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,8 @@ app.use('/api/auth', authRoutes);
 
 app.use('/api/data', protectedRoutes);
 app.use('/api/registro', registrRoutes);
+
+app.use("/api/pastor", pastorRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
