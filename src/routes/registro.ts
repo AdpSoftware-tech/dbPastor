@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registrarSuperAdminHandler, registrarSecretariaHandler } from '../controllers/RegistroController.js';
+import { registrarSuperAdminHandler, registrarSecretariaHandler, registrarSecretariaAsociacionHandler } from '../controllers/RegistroController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 import { authorizeRole } from '../middlewares/authorizeRole.js';
 
@@ -13,5 +13,13 @@ router.post(
     authorizeRole(["SuperADMIN"]),
     registrarSecretariaHandler
 );
+
+router.post(
+    "/secretaria-asociacion",
+    authenticateToken,
+    authorizeRole(["SuperADMIN"]),
+    registrarSecretariaAsociacionHandler
+);
+
 
 export default router;

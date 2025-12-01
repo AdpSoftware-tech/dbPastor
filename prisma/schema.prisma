@@ -31,6 +31,9 @@ model Usuario {
   pastorInfo    Pastor?   @relation("UsuarioPastor")
   miembroInfo   Miembro?  @relation("UsuarioMiembro")
 
+  asociacionId   String?
+  asociacion     Asociacion? @relation("SecretariasDeAsociacion", fields: [asociacionId], references: [id])
+
   // Secretaria de Iglesia
   iglesiaId         String?
   iglesiaSecretaria Iglesia? @relation("SecretariasDeIglesia", fields: [iglesiaId], references: [id])
@@ -84,6 +87,7 @@ model Asociacion {
   nombre    String
   distritos Distrito[]
   pastores  Pastor[]
+  secretarias Usuario[] @relation("SecretariasDeAsociacion")
 }
 
 model Distrito {

@@ -48,3 +48,22 @@ export const registrarSecretariaHandler = async (req: Request, res: Response) =>
     }
 };
 
+export const registrarSecretariaAsociacionHandler = async (req: Request, res: Response) => {
+    try {
+        const data = {
+            ...req.body,
+            rol: "SECRETARIAAsociacion"
+        };
+
+        const nuevaSecretaria = await registrarUsuario(data);
+
+        res.status(201).json({
+            message: "Secretaria de Asociación creada correctamente",
+            secretaria: nuevaSecretaria
+        });
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Error desconocido al registrar el SECRETARIA Asociacion.";
+        return res.status(409).json({ message: errorMessage });
+    }
+};
+
