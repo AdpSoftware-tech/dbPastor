@@ -2,6 +2,7 @@
 import { PrismaClient, Rol } from "@prisma/client";
 import bcrypt from "bcrypt";
 
+
 const prisma = new PrismaClient();
 
 // Función interna para hashear password
@@ -102,3 +103,56 @@ export const crearUsuario = async (data: CrearUsuarioInput) => {
 
     return usuario;
 };
+
+export const getAllUsuariosService = async () => {
+    const usuarios = await prisma.usuario.findMany({
+        select: {
+            id: true,
+            nombre: true,
+            apellidos: true,
+            email: true,
+            telefono: true,
+            rol: true,
+            codigoUnico: true,
+            creadoEn: true,
+            actualizadoEn: true,
+        },
+        orderBy: { creadoEn: "desc" },
+    });
+
+    const totalUsuarios = await prisma.usuario.count();
+
+    const porRolRaw = await prisma.usuario.groupBy({
+        by: ["rol"],
+        _count: { rol: true },
+    });
+
+    const porRol: Record<string, number> = {};
+    for (const r of porRolRaw) porRol[r.rol] = r._count.rol;
+
+    // ✅ Nuevos por mes
+    const nuevosPorMes = await prisma.$queryRaw<
+        Array<{ mes: string; cantidad: bigint }>
+    >`
+    SELECT to_char(date_trunc('month', "creadoEn"), 'YYYY-MM') as mes,
+           count(*)::bigint as cantidad
+    FROM "Usuario"
+    GROUP BY 1
+    ORDER BY 1 ASC
+  `;
+
+    return {
+        usuarios,
+        stats: {
+            totalUsuarios,
+            porRol,
+            nuevosPorMes: nuevosPorMes.map((x) => ({
+                mes: x.mes, // "2026-01"
+                cantidad: Number(x.cantidad),
+            })),
+        },
+    };
+};
+
+
+

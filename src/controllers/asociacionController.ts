@@ -6,7 +6,7 @@ import {
     obtenerAsociacion,
     listarAsociaciones,
     eliminarAsociacion
-} from "../services/asociacionService.js";
+} from "../services/AsociacionService.js";
 
 // Crear asociación
 export const crearAsociacionController = async (req: Request, res: Response) => {

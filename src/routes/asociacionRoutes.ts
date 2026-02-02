@@ -11,7 +11,7 @@ import {
     eliminarAsociacionController
 } from "../controllers/asociacionController.js";
 
-import { getAsociacionPerfil, getDistritos, getIglesiasAsociacion, getPastoresAsociacion } from "../services/asociacionService.js";
+import { getAsociacionPerfil, getDistritos, getIglesiasAsociacion, getPastoresAsociacion } from "../services/AsociacionService.js";
 
 const router = Router();
 

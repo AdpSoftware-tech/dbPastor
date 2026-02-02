@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import { crearUsuario } from "../services/usuarioService.js";
 import { Rol } from "@prisma/client";
+import { getAllUsuariosService } from "../services/usuarioService.js";
 
 export const crearUsuarioController = async (req: Request, res: Response) => {
     try {
@@ -42,3 +43,21 @@ export const crearUsuarioController = async (req: Request, res: Response) => {
         return res.status(400).json({ message });
     }
 };
+
+
+
+export const getAllUsuariosController = async (req: Request, res: Response) => {
+    try {
+        const result = await getAllUsuariosService();
+        res.json({
+            message: "Usuarios obtenidos correctamente",
+            data: result.usuarios,
+            stats: result.stats,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener usuarios" });
+    }
+};
+
+

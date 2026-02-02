@@ -2,7 +2,7 @@
 import { Router } from "express";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import { authorizeRole } from "../middlewares/authorizeRole.js";
-import { crearUsuarioController } from "../controllers/usuarioController.js";
+import { crearUsuarioController, getAllUsuariosController } from "../controllers/usuarioController.js";
 
 const router = Router();
 
@@ -13,5 +13,9 @@ const soloAdmin = [
 
 // Crear usuario (solo SuperADMIN)
 router.post("/", ...soloAdmin, crearUsuarioController);
+
+// 👉 GET ALL usuarios (solo SuperADMIN)
+router.get("/", ...soloAdmin, getAllUsuariosController);
+
 
 export default router;

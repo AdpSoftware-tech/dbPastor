@@ -6,8 +6,19 @@ import {
     getMiembrosIglesia,
     crearEventoIglesia
 } from "../services/IglesiaService.js";
+import {
+    crearIglesiaController,
+    getAllIglesiasController,
+    editarIglesiaController,
+    eliminarIglesiaController,
+} from "../controllers/iglesiaController.js";
 
 const router = Router();
+
+const soloAdmin = [
+    authenticateToken,
+    authorizeRole(["SuperADMIN"]),
+];
 
 const soloSecretariaIglesia = [
     authenticateToken,
@@ -58,5 +69,18 @@ router.post("/evento", ...soloSecretariaIglesia, async (req, res) => {
     }
 });
 
+
+// ✅ Crear iglesia
+router.post("/", ...soloAdmin, crearIglesiaController);
+
+// (opcional pero recomendado) ✅ Listar iglesias
+router.get("/", ...soloAdmin, getAllIglesiasController);
+
+// (opcional) ✅ Editar
+router.put("/:id", ...soloAdmin, editarIglesiaController);
+
+// (opcional) ✅ Eliminar
+
+router.delete("/:id", ...soloAdmin, eliminarIglesiaController);
 
 export default router;

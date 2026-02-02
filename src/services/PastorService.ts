@@ -112,24 +112,43 @@ export const getPastorBautismos = async (pastorInfoId: string) => {
 /**
  * Asignar pastor a un distrito
  */
-export const asignarPastorADistrito = async (pastorId: string, distritoId: string) => {
-    // Validar distrito
+export const asignarPastorADistrito = async ({
+    pastorId,
+    usuarioId,
+    distritoId,
+}: {
+    pastorId?: string;
+    usuarioId?: string;
+    distritoId: string;
+}) => {
+    // 1) Validar distrito
     const distrito = await prisma.distrito.findUnique({
-        where: { id: distritoId }
+        where: { id: distritoId },
     });
 
-    if (!distrito) {
-        throw new Error("El distrito no existe.");
+    if (!distrito) throw new Error("El distrito no existe.");
+
+    // 2) Validar que exista pastor (por id o por usuarioId)
+    const where = pastorId
+        ? { id: pastorId }
+        : { usuarioId: usuarioId! }; // usuarioId viene obligatorio si no hay pastorId
+
+    const existe = await prisma.pastor.findUnique({ where });
+
+    if (!existe) {
+        throw new Error("No existe pastor para este usuario.");
     }
 
+    // 3) Actualizar y sincronizar asociación
     return prisma.pastor.update({
-        where: { id: pastorId },
+        where,
         data: {
             distritoId,
-            asociacionId: distrito.asociacionId   // ← Se sincroniza automáticamente
-        }
+            asociacionId: distrito.asociacionId, // ✅ se sincroniza automáticamente
+        },
     });
 };
+
 
 /**
  * Quitar pastor del distrito

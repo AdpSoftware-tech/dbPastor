@@ -15,19 +15,31 @@ const prisma = new PrismaClient();
 // Asignar pastor a distrito
 export const asignarPastorController = async (req: Request, res: Response) => {
     try {
-        const { pastorId, distritoId } = req.body;
+        const { pastorId, usuarioId, distritoId } = req.body;
 
-        const result = await asignarPastorADistrito(pastorId, distritoId);
+        if (!distritoId) {
+            return res.status(400).json({ message: "distritoId es obligatorio" });
+        }
 
-        res.json({
-            message: "Pastor asignado correctamente",
-            data: result
+        // ✅ ahora permitimos asignar por pastorId O por usuarioId
+        if ((!pastorId || pastorId.trim() === "") && (!usuarioId || usuarioId.trim() === "")) {
+            return res.status(400).json({ message: "Debes enviar pastorId o usuarioId" });
+        }
+
+        const result = await asignarPastorADistrito({
+            pastorId: pastorId?.toString(),
+            usuarioId: usuarioId?.toString(),
+            distritoId: distritoId.toString(),
         });
+
+        res.json({ message: "Pastor asignado correctamente", data: result });
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Error desconocido al asignar pastor a distrito";
+        const errorMessage =
+            error instanceof Error ? error.message : "Error desconocido al asignar pastor a distrito";
         return res.status(409).json({ message: errorMessage });
     }
 };
+
 
 // Quitar pastor del distrito
 export const quitarPastorController = async (req: Request, res: Response) => {

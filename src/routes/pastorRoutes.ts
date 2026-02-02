@@ -18,6 +18,9 @@ import {
     estructuraPastoresGlobalController
 } from "../controllers/pastorController.js";
 
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
 
 const router = Router();
 
@@ -58,6 +61,24 @@ router.get("/perfil", ...soloPastor, async (req, res) => {
 
     res.json(data);
 });
+
+router.get("/by-usuario/:usuarioId", ...soloAdmin, async (req, res) => {
+    try {
+        const { usuarioId } = req.params;
+
+        const pastor = await prisma.pastor.findUnique({
+            where: { usuarioId },
+            include: { usuario: true, asociacion: true, distrito: true },
+        });
+
+        if (!pastor) return res.status(404).json({ message: "Pastor no existe para este usuario" });
+
+        res.json({ data: pastor });
+    } catch (e) {
+        res.status(400).json({ message: "Error buscando pastor por usuarioId" });
+    }
+});
+
 
 // 2. Iglesias del pastor
 router.get("/iglesias", ...soloPastor, async (req, res) => {
@@ -147,7 +168,7 @@ router.get("/distrito/:distritoId", ...soloSecretaria, pastoresDeDistritoControl
 
 // Listar pastores de la asociación
 router.get("/asociacion", ...soloSecretaria, pastoresDeAsociacionController);
-
+//// no me acuerdo si ya esta lista 
 router.get("/estructura", ...soloAdmin, estructuraPastoresGlobalController);
 
 
